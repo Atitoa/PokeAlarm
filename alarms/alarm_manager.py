@@ -99,14 +99,15 @@ class Alarm_Manager(Thread):
 		lat = pkmn['latitude']
 		lng = pkmn['longitude']
 		dist = get_dist([lat, lng])
-		if dist >= self.notify_list[pkmn_id]:
+		if dist >= config['DISTANCE']:
 			log.info(name + " ignored: outside range")
-			log.info(dist)
-			log.info(self.notify_list[pkmn_id])
+			log.info('Distance is: {}'.format(dist))
+			log.info('Distance parameter: {}'.format(config['DISTANCE']))
+			log.info('Distance notification: {}'.format(self.notify_list[pkmn_id]))
 			return
         
 		#Check if the Pokemon is in the geofence
-		if 'GEOFENCE' in config and not config['GEOFENCE'].contains(lat,lng):
+		if 'GEOFENCE' in config and not config['GEOFENCE'] == None and not config['GEOFENCE'].contains(lat,lng):
 			log.info(name + " ignored: outside geofence")
 			return
 		#Trigger the notifcations

@@ -21,6 +21,7 @@ class Telegram_Alarm(Alarm):
 		self.send_map = parse_boolean(settings.get('send_map', "True"))
 		self.title = settings.get('title', "A wild <pkmn> has appeared!")
 		self.body = settings.get('body', "<gmaps> \n Available until <24h_time> (<time_left>).")
+		self.client.message_loop(self.handle)
 		log.info("Telegram Alarm intialized.")
 		self.client.sendMessage(self.chat_id, 'PokeAlarm activated! We will alert this chat about pokemon.')
 	
@@ -38,6 +39,9 @@ class Telegram_Alarm(Alarm):
 			'parse_mode': 'HTML',
 			'disable_web_page_preview': 'False',
 		}
+		if config['SEND'] is not True:
+			log.info('Notification turned off')
+			return
 		if self.send_map is True:
 			locargs = { 
 				'chat_id': self.chat_id,
@@ -47,3 +51,37 @@ class Telegram_Alarm(Alarm):
 			try_sending(log, self.connect, "Telegram (loc)", self.client.sendLocation, locargs)
 			
 		try_sending(log, self.connect, "Telegram", self.client.sendMessage, args)
+    #Handle received telegram messages
+	def handle(self, msg):
+		chat_id = msg['chat']['id']
+		content_type, chat_type, chat_id = telepot.glance(msg)
+		print(content_type, chat_type, chat_id)
+		if content_type == 'location':
+			print(msg['location']['longitude'])
+			print(msg['location']['latitude'])
+			config['LOCATION'] = [msg['location']['latitude'], msg['location']['longitude']]
+		elif content_type == 'text':
+			split = msg['text'].split( )
+			command = split[0]
+			if len(split) > 1:
+				argument = msg['text'].split( )[1]
+			else:
+				argument = ''
+			print 'Got command: %s' % command
+			if command == '/distance':
+				self.client.sendMessage(chat_id, 'hallo')
+				try:
+					config['DISTANCE'] = float(argument)
+				except ValueError:
+					print "Not a float/distance"                                
+                        #print(os.path.join(config['ROOT_PATH'], 'rettig.txt'))
+                        #config['GEOFENCE'] = Geofence(os.path.join(config['ROOT_PATH'], 'rettig.txt'))
+			elif command == '/geo':
+				if argument == '':
+					config['GEOFENCE'] = None
+				else:
+					config['GEOFENCE'] = Geofence(os.path.join(config['ROOT_PATH'], argument))
+			elif command == '/startNotification':
+				config['SEND'] = True
+			elif command == '/stopNotification':
+				config['SEND'] = False

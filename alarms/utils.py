@@ -37,6 +37,8 @@ def set_config(root_path):
 	parser.add_argument('-L', '--locale', help='Locale for Pokemon names: default en, check locale folder for more options', default='en')
 	parser.add_argument('-d', '--debug', help='Debug Mode', action='store_true')
 	parser.add_argument('-gf', '--geofence', help='Specify a file of coordinates, limiting alerts to within this area')
+	parser.add_argument('-D', '--distance', type=float, help='Set web server listening port', default='inf')
+	parser.add_argument('-S', '--send', type=bool, help='Set web server listening port', default='true')
 	parser.set_defaults(DEBUG=False)
 	
 	args = parser.parse_args()
@@ -46,6 +48,8 @@ def set_config(root_path):
 	config['PORT'] = args.port
 	config['LOCALE'] = args.locale
 	config['DEBUG'] = args.debug
+	config['DISTANCE'] = args.distance
+	config['SEND'] = args.send
 	
 	if args.location:
 		config['LOCATION'] =  get_pos_by_name(args.location)
