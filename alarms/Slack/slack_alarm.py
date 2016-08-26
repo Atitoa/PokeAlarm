@@ -23,13 +23,15 @@ class Slack_Alarm(Alarm):
 		self.url = settings.get('url', "<gmaps>")
 		self.body = settings.get('body', "Available until <24h_time> (<time_left>).")
 		self.username = settings.get('username', "<pkmn>")
-		self.setup_map(settings.get('map', {}))
+		self.map = get_static_map_url(settings.get('map', {}))
+		self.startup_message = settings.get('startup_message', "True")
 		log.info("Slack Alarm intialized.")
-		self.post_message(
-			channel=self.channel,
-			username='PokeAlarm',
-			text='PokeAlarm activated! We will alert this channel about pokemon.'
-		)
+		if parse_boolean(self.startup_message):
+			self.post_message(
+				channel=self.channel,
+				username='PokeAlarm',
+				text='PokeAlarm activated! We will alert this channel about pokemon.'
+			)
 	
 	#Establish connection with Slack
 	def connect(self):
@@ -83,39 +85,18 @@ class Slack_Alarm(Alarm):
 		username = replace(self.username, pkinfo)
 		text = '<{}|{}> {}'.format(replace(self.url, pkinfo),  replace(self.title, pkinfo) , replace(self.body, pkinfo))
 		icon_url = 'https://raw.githubusercontent.com/kvangent/PokeAlarm/master/icons/{}.png'.format(pkinfo['id'])
-		map = self.get_map_url(pkinfo['lat'], pkinfo['lng'])
+		map = self.get_map(pkinfo)
 		self.post_message(channel, username, text, icon_url, map)
-			
-	#Set stack map attributes
-	def setup_map(self, settings):
-		if parse_boolean(settings.get('enabled', "True")) is False:
-			self.map = None
-			return
-		width = settings.get('width', '250')
-		height = settings.get('height', '125')
-		maptype = settings.get('maptype', 'roadmap')
-		zoom = settings.get('zoom', '15')
-	
-		center = '<CENTER>'
-		query_center = 'center={}'.format(center)
-		query_markers =  'markers=color:red%7C{}'.format(center)
-		query_size = 'size={}x{}'.format(width, height)
-		query_zoom = 'zoom={}'.format(zoom)
-		query_maptype = 'maptype={}'.format(maptype)
-		
-		self.map = ('https://maps.googleapis.com/maps/api/staticmap?' +
-					query_center + '&' + query_markers + '&' +
-					query_maptype + '&' + query_size + '&' + query_zoom)
-	
+
 	# Build a query for a static map of the pokemon location
-	def get_map_url(self, lat, lng):
+	def get_map(self, info):
 		if self.map is None: #If no map is set
 			return None
 		map = [
 			{
 				'fallback': 'Map_Preview',
-				'image_url':  self.map.replace('<CENTER>', '{},{}'.format(lat,lng))
+				'image_url':  replace(self.map, info)
 			}
 		]
+		log.debug(map[0].get('image_url'))
 		return map
-		
