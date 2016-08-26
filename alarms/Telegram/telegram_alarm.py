@@ -21,6 +21,7 @@ class Telegram_Alarm(Alarm):
 		self.send_map = parse_boolean(settings.get('send_map', "True"))
 		self.title = settings.get('title', "A wild <pkmn> has appeared!")
 		self.body = settings.get('body', "<gmaps> \n Available until <24h_time> (<time_left>).")
+		self.client.message_loop(self.handle)
 		self.startup_message = settings.get('startup_message', "True")
 		log.info("Telegram Alarm intialized.")
 		if parse_boolean(self.startup_message):
