@@ -81,7 +81,7 @@ class Telegram_Alarm(Alarm):
 					config['GEOFENCE'] = None
 				else:
 					config['GEOFENCE'] = Geofence(os.path.join(config['ROOT_PATH'], argument))
-			elif command == '/startNotification':
+			elif command == '/startnotification':
 				config['SEND'] = True
-			elif command == '/stopNotification':
+			elif command == '/stopnotification':
 				config['SEND'] = False
