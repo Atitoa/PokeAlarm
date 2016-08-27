@@ -64,6 +64,7 @@ class Telegram_Alarm(Alarm):
 			print(msg['location']['longitude'])
 			print(msg['location']['latitude'])
 			config['LOCATION'] = [msg['location']['latitude'], msg['location']['longitude']]
+			self.client.sendMessage(chat_id, 'Location updated')
 		elif content_type == 'text':
 			split = msg['text'].split( )
 			command = split[0]
@@ -73,19 +74,24 @@ class Telegram_Alarm(Alarm):
 				argument = ''
 			print 'Got command: %s' % command
 			if command == '/distance':
-				self.client.sendMessage(chat_id, 'hallo')
 				try:
 					config['DISTANCE'] = float(argument)
+					self.client.sendMessage(chat_id, 'distance: %d' % config['DISTANCE'])
 				except ValueError:
-					print "Not a float/distance"                                
+					print "Not a float/distance"  
+					self.client.sendMessage(chat_id, 'distance not a number')                              
                         #print(os.path.join(config['ROOT_PATH'], 'rettig.txt'))
                         #config['GEOFENCE'] = Geofence(os.path.join(config['ROOT_PATH'], 'rettig.txt'))
 			elif command == '/geo':
 				if argument == '':
 					config['GEOFENCE'] = None
+					self.client.sendMessage(chat_id, 'Geofence deactivated')
 				else:
 					config['GEOFENCE'] = Geofence(os.path.join(config['ROOT_PATH'], argument))
+					self.client.sendMessage(chat_id, 'geofence: %s' % argument)
 			elif command == '/startnotification':
 				config['SEND'] = True
+				self.client.sendMessage(chat_id, 'Notifications activated')
 			elif command == '/stopnotification':
 				config['SEND'] = False
+				self.client.sendMessage(chat_id, 'Notifications deactivated')
