@@ -53,9 +53,7 @@ class Telegram_Alarm(Alarm):
 				'disable_notification': 'True'
 			}
 			try_sending(log, self.connect, "Telegram (loc)", self.client.sendLocation, locargs)
-			
-		try_sending(log, self.connect, "Telegram", self.client.sendMessage, args)
-    #Handle received telegram messages
+    # Handle received telegram messages
 	def handle(self, msg):
 		chat_id = msg['chat']['id']
 		content_type, chat_type, chat_id = telepot.glance(msg)
