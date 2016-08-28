@@ -7,7 +7,6 @@ import os
 import json
 import configargparse
 import time
-import geocoder
 import sys
 import re
 import googlemaps
